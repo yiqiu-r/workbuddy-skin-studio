@@ -1,4 +1,4 @@
-# WorkBuddy Skin Studio · WorkBuddy 换肤工作室
+# WorkBuddy Skin Studio · WorkBuddy 换肤
 
 **给 WorkBuddy 桌面端换一张会呼吸的脸。**
 
@@ -133,7 +133,7 @@ node src/cli.mjs doctor                            # 检查环境（app 路径�
 
 ## 内置预设
 
-工作室内置 8 套 DSH 幻梦系列，代码内联于 `src/dsh-themes.mjs`，无需额外素材文件：
+内置 8 套 DSH 幻梦系列，代码内联于 `src/dsh-themes.mjs`，无需额外素材文件：
 
 | 主题 id | 名称 | 模式 |
 |---|---|---|
