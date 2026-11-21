@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { DEFAULT_CDP_PORT, DEFAULT_THEME_ID, EXPECTED_BUNDLE_ID, RENDERER_URL_HINT, resolveStudioPaths } from "./constants.mjs";
+import { DSH_THEMES } from "./dsh-themes.mjs";
 import { applySkin, removeSkin, skinStatus } from "./injector.mjs";
 import { loadTheme } from "./theme-schema.mjs";
 import { createSingleImageTheme, listThemes } from "./theme-store.mjs";
@@ -55,7 +56,10 @@ export async function runCli(argv, overrides = {}) {
       commands: ["list", "create --image PATH --name NAME", "apply [--theme ID] [--port 9223]", "pause", "status", "doctor"],
     };
   }
-  if (command === "list") return deps.listThemes({ roots });
+  if (command === "list") {
+    const presets = DSH_THEMES.map((theme) => ({ id: theme.id, name: theme.name, preset: true }));
+    return [...presets, ...(await deps.listThemes({ roots }))];
+  }
   if (command === "create") {
     if (!args.image) throw new Error("create 需要 --image");
     if (!args.name) throw new Error("create 需要 --name");

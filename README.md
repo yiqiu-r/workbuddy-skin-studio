@@ -8,15 +8,6 @@
 
 > **给 AI 助手**：如果你的用户把本仓库的 GitHub 地址发给你，并说"用这个开源项目帮我换 WorkBuddy 主题"，请直接阅读仓库根目录的 [`SKILL.md`](SKILL.md) —— 里面是给 AI 的自动化安装流程（平台检测、运行 apply 脚本、选主题、验证、还原），照做即可，无需人类逐步操作。
 
-## 效果预览
-
-![主界面 · Miku 主题](docs/images/preview-main.png)
-
-![右上角 🎨 菜单 · 主题切换](docs/images/preview-menu.png)
-
-![深色主题 · 原神星夜](docs/images/preview-dark.png)
-
-
 ## 这是什么
 
 一个给 WorkBuddy 桌面端换肤的工具。通过本机回环 CDP 把主题实时注入 WorkBuddy 界面，不修改 `app.asar`，不破坏应用签名，也不需要为每次 WorkBuddy 更新重新适配。
@@ -44,7 +35,7 @@
 
 AI 会克隆仓库、读取根目录的 [`SKILL.md`](SKILL.md)，自动完成**平台检测 → 运行对应 apply 脚本 → 注入主题 → 验证状态**，你只需在弹窗里保存好 WorkBuddy 当前任务即可。换肤后日常切换仍在右上角 🎨 菜单里进行。
 
-> 想指定主题也可直接说，例如「用深色原神主题」或「帮我换成 miku-light」。
+> 想指定主题也可直接说，例如「用深色子夜」或「帮我换成 dsh-midnight」。
 
 ### macOS
 
@@ -53,7 +44,7 @@ AI 会克隆仓库、读取根目录的 [`SKILL.md`](SKILL.md)，自动完成**�
 ./scripts/apply.command
 
 # 或指定主题
-node src/cli.mjs apply --theme genshin-night
+node src/cli.mjs apply --theme dsh-midnight
 ```
 
 ### Windows
@@ -63,7 +54,7 @@ node src/cli.mjs apply --theme genshin-night
 .\scripts\apply.ps1
 
 # 或指定主题
-.\scripts\apply.ps1 -Theme genshin-night
+.\scripts\apply.ps1 -Theme dsh-midnight
 
 # 若找不到 WorkBuddy.exe，先跑排查脚本：
 .\scripts\find-workbuddy.ps1
@@ -100,8 +91,9 @@ node src/cli.mjs apply --theme genshin-night
 用任意图片创建主题：
 
 ```bash
+# create 会返回自动生成的 id（形如 my-skin-1a2b3c4d），apply 时用它
 node src/cli.mjs create --image "/path/to/hero.webp" --name "My Skin"
-node src/cli.mjs apply --theme my-skin
+node src/cli.mjs apply --theme <返回的 id>
 ```
 
 或直接在 🎨 菜单里选「＋ 自定义图片」上传，自动取色并持久化（localStorage）。
@@ -139,20 +131,22 @@ node src/cli.mjs pause                             # 恢复原生
 node src/cli.mjs doctor                            # 检查环境（app 路径、端口、平台）
 ```
 
-## 内置主题
+## 内置预设
 
-| 主题 id | 名称 | 风格 |
+工作室内置 8 套 DSH 幻梦系列，代码内联于 `src/dsh-themes.mjs`，无需额外素材文件：
+
+| 主题 id | 名称 | 模式 |
 |---|---|---|
-| `miku-light` | Miku Light | 青绿粉 · 浅色 |
-| `miku-488137` | Miku 488137 | 青绿 · 高精度 |
-| `genshin-dawn` | 原神 · 晨曦 | 蓝 · 浅色 |
-| `genshin-night` | 原神 · 星夜 | 金 · 深色 |
-| `deepspace-dawn` | 恋与深空 · 晨曦 | 紫 · 浅色 |
-| `deepspace-star` | 恋与深空 · 星辰 | 紫 · 深色 |
-| `naruto-hokage` | 火影 · 鸣人 | 橙 · 浅色 |
-| `naruto-sasuke` | 火影 · 佐助 | 红 · 深色 |
-| `wuthering-echo` | 鸣潮 · 共鸣 | 青 · 浅色 |
-| `wuthering-tide` | 鸣潮 · 声骸 | 青 · 浅色 |
+| `dsh-mist` | 冰雾 · 液态玻璃 | 白 · 浅色（默认） |
+| `dsh-ivory` | 象牙 · iOS 暖纸 | 白 · 浅色 |
+| `dsh-rose` | 玫瑰 · 优雅粉白 | 白 · 浅色 |
+| `dsh-abyss` | 深渊 · 沉静幽蓝 | 黑 · 深色 |
+| `dsh-aurora` | 极光 · 赛博冷青 | 黑 · 深色 |
+| `dsh-nebula` | 星云 · 尘埃幽紫 | 黑 · 深色 |
+| `dsh-ember` | 余烬 · 焦糖暖琥珀 | 黑 · 深色 |
+| `dsh-midnight` | 子夜 · OLED 纯黑 | 黑 · 深色 |
+
+除上述预设外，其余主题一律由你自己上传的图片生成（见上一节），仓库不附带任何第三方素材。
 
 ## 设计边界
 
@@ -177,6 +171,6 @@ node src/cli.mjs doctor                            # 检查环境（app 路径�
 - [HeiGeAi/heige-codex-skin-studio](https://github.com/HeiGeAi/heige-codex-skin-studio) — CDP 注入架构、主题 schema、菜单取色逻辑、`.command` 脚本
 - [Fei-Away/Codex-Dream-Skin](https://github.com/Fei-Away/Codex-Dream-Skin) — Windows PowerShell 启动套路（`Test-CDP` / `Start-Process` / 路径探测）、light/dark 自动适配思路
 
-## 许可与素材
+## 许可
 
-代码使用 [MIT License](LICENSE)。预览与预设中的角色、名称和视觉素材权利属于各自权利人（初音未来、原神、鸣潮、火影忍者、恋与深空等），仅用于主题概念展示，不由本项目的软件许可证授权。
+代码使用 [MIT License](LICENSE)。仓库不附带任何第三方图片、角色或名称素材：内置的 8 套预设全部由纯配色变量与 CSS 生成，自定义主题的图片来源由使用者自行负责。

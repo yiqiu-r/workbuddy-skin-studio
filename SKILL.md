@@ -44,11 +44,11 @@ No official files are touched.
 1. Clone / open the repo, then run the launcher (double-click works, or CLI):
 
    ```bash
-   # default theme (miku-light)
+   # default theme (dsh-mist)
    ./scripts/apply.command
 
    # or a specific theme via the cross-platform CLI
-   node src/cli.mjs apply --theme genshin-night
+   node src/cli.mjs apply --theme dsh-midnight
    ```
 
    `apply.command` quits WorkBuddy, relaunches it with the CDP port, waits for
@@ -68,11 +68,11 @@ No official files are touched.
 1. From the repo directory, run in **PowerShell** (not cmd):
 
    ```powershell
-   # default theme (miku-light)
+   # default theme (dsh-mist)
    .\scripts\apply.ps1
 
    # or a specific theme
-   .\scripts\apply.ps1 -Theme genshin-night
+   .\scripts\apply.ps1 -Theme dsh-midnight
    ```
 
    If you hit an execution-policy error, run once:
@@ -99,7 +99,7 @@ No official files are touched.
 - Built-ins include 8 DSH Dream Skin presets: `dsh-mist`, `dsh-ivory`, `dsh-rose` (light/white),
   `dsh-abyss`, `dsh-aurora`, `dsh-nebula`, `dsh-ember`, `dsh-midnight` (dark/black).
 - Wallpaper opacity slider (10% to 100%) is built into the 🎨 menu for custom wallpaper tuning.
-- If the user names a mood/character (e.g. "dark Genshin"), map it to the
+- If the user names a mood (e.g. "something dark and quiet"), map it to the
   closest id, or just apply the default and let them pick from the 🎨 menu.
 - Custom image: `node src/cli.mjs create --image "/path/to/hero.webp" --name "My Skin"`
   then `node src/cli.mjs apply --theme my-skin`. The in-app 🎨 menu also supports
@@ -150,7 +150,8 @@ renderer hint `renderer/index.html`.
 - `src/constants.mjs`, `src/theme-schema.mjs`, `src/theme-store.mjs` — config & theme model.
 - `scripts/apply.command` / `pause.command` — macOS launchers.
 - `scripts/apply.ps1` / `pause.ps1` / `find-workbuddy.ps1` — Windows launchers.
-- `themes/` — 10 built-in theme folders (`theme.json` + `hero.webp`).
+- `src/dsh-themes.mjs` — the 8 built-in DSH presets (inlined, no asset files).
+- `themes/` — optional local theme directory, empty by default; user themes live under the app state dir.
 - `README.md` — full human-readable documentation.
 
 ## One-line summary for the user
