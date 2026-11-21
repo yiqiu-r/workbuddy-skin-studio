@@ -105,18 +105,15 @@ No official files are touched.
   then `node src/cli.mjs apply --theme my-skin`. The in-app 🎨 menu also supports
   "＋ 自定义图片" with automatic color extraction.
 
-## Pause / restore to native
+## Restore to native
 
-```bash
-# macOS
-./scripts/pause.command
+No separate script is needed — there are two ways:
 
-# Windows (PowerShell)
-.\scripts\pause.ps1
-```
+- In the 🎨 menu, click 「恢复官方原生界面」 to restore the native look immediately.
+- Quit WorkBuddy and reopen it: the injection dies with the renderer, so it starts native.
 
-This removes the injected skin and relaunches WorkBuddy normally. The official
-install is always left untouched.
+`node src/cli.mjs pause` also works if you prefer the CLI. The official install
+is always left untouched.
 
 ## Guardrails
 
@@ -148,8 +145,8 @@ renderer hint `renderer/index.html`.
 - `src/skin-menu.mjs` — the 🎨 in-app menu (switch / upload / delete / native).
 - `src/injector.mjs` — idempotent CSS+menu injection and removal.
 - `src/constants.mjs`, `src/theme-schema.mjs`, `src/theme-store.mjs` — config & theme model.
-- `scripts/apply.command` / `pause.command` — macOS launchers.
-- `scripts/apply.ps1` / `pause.ps1` / `find-workbuddy.ps1` — Windows launchers.
+- `scripts/apply.command` — macOS launcher.
+- `scripts/apply.ps1` / `find-workbuddy.ps1` — Windows launchers.
 - `src/dsh-themes.mjs` — the 8 built-in DSH presets (inlined, no asset files).
 - `themes/` — optional local theme directory, empty by default; user themes live under the app state dir.
 - `README.md` — full human-readable documentation.

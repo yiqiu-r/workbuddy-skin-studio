@@ -65,22 +65,18 @@ node src/cli.mjs apply --theme dsh-midnight
 
 应用皮肤时 WorkBuddy 会被正常退出并以本机调试模式重新打开，**当前任务请先保存**。
 
-之后的日常切换都在 WorkBuddy 右上角 🎨 菜单里完成。暂停皮肤、回到原生外观：
+之后的日常切换都在 WorkBuddy 右上角 🎨 菜单里完成。想回到原生外观，不需要任何额外脚本：
 
-```bash
-# macOS
-./scripts/pause.command
+- 点 🎨 菜单里的「恢复官方原生界面」，立即还原
+- 或直接退出并重开 WorkBuddy —— 注入随进程结束而消失，启动即是原生界面
 
-# Windows
-.\scripts\pause.ps1
-```
-
-> 注意：WorkBuddy 手动重启后注入会消失（CDP 方案的天性），重跑一次 apply 即可回来。
+> 反过来也成立：WorkBuddy 重启后皮肤会消失（CDP 方案的天性），重跑一次 apply 即可回来。
 
 ## 主题切换菜单
 
 应用皮肤后，WorkBuddy 右上角（titlebar 下方）会出现 🎨 按钮：
 
+- **按住按钮可拖动到任意位置**，位置自动记住；贴边时面板会朝屏幕内侧展开
 - 点击展开主题列表，点击任意主题即时切换
 - 「＋ 自定义图片」上传本地图片生成主题（canvas 自动取色 + 压缩成 webp）
 - 自定义主题行尾 × 一键删除
