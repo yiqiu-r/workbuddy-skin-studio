@@ -1,0 +1,88 @@
+// DSH Dream Skin 经典 8 套高质感预设 (Mirage 幻梦系列)
+// 包含 3 套浅色 (白) + 5 套深色 (黑)，经 OKLCH 感知调色与 WCAG/APCA 对比度双认证
+
+export const DSH_THEMES = [
+  // ---- 浅色系 (白) ----
+  {
+    id: "dsh-mist",
+    name: "DSH · 冰雾 (白 / 液态玻璃)",
+    colorScheme: "light",
+    accent: "#006CB5",
+    secondary: "#7FB3FF",
+    surface: "#F0F8FF",
+    text: "#1E293B",
+    glow: "radial-gradient(1180px 720px at 76% -14%, rgba(0, 108, 181, 0.22), transparent 64%), radial-gradient(900px 620px at 6% 108%, rgba(127, 179, 255, 0.18), transparent 60%), linear-gradient(163deg, #E3EDF4 0%, #F5FAFD 55%, #EDF4F9 100%)",
+  },
+  {
+    id: "dsh-ivory",
+    name: "DSH · 象牙 (白 / iOS 暖纸)",
+    colorScheme: "light",
+    accent: "#1D6CC1",
+    secondary: "#E0AA3E",
+    surface: "#FFFDF6",
+    text: "#272623",
+    glow: "radial-gradient(1180px 720px at 76% -14%, rgba(29, 108, 193, 0.20), transparent 64%), radial-gradient(900px 620px at 6% 108%, rgba(224, 170, 62, 0.16), transparent 60%), linear-gradient(163deg, #F3F0E7 0%, #FDFBF7 55%, #F7F4EB 100%)",
+  },
+  {
+    id: "dsh-rose",
+    name: "DSH · 玫瑰 (白 / 优雅粉白)",
+    colorScheme: "light",
+    accent: "#D9467A",
+    secondary: "#F097C8",
+    surface: "#FFF8FA",
+    text: "#2A2226",
+    glow: "radial-gradient(1180px 720px at 76% -14%, rgba(217, 70, 122, 0.20), transparent 64%), radial-gradient(900px 620px at 6% 108%, rgba(240, 151, 200, 0.16), transparent 60%), linear-gradient(163deg, #F9EFF2 0%, #FFFDFE 55%, #FBF3F6 100%)",
+  },
+
+  // ---- 深色系 (黑) ----
+  {
+    id: "dsh-abyss",
+    name: "DSH · 深渊 (黑 / 沉静幽蓝)",
+    colorScheme: "dark",
+    accent: "#A093FB",
+    secondary: "#48BFE3",
+    surface: "#111317",
+    text: "#EDF0F7",
+    glow: "radial-gradient(1180px 720px at 76% -14%, rgba(143, 131, 224, 0.32), transparent 64%), radial-gradient(900px 620px at 6% 108%, rgba(48, 138, 179, 0.2), transparent 60%), radial-gradient(1500px 950px at 50% 32%, rgba(34, 36, 41, 0.55), transparent 74%), linear-gradient(163deg, #15171b 0%, #0d0f13 55%, #121418 100%)",
+  },
+  {
+    id: "dsh-aurora",
+    name: "DSH · 极光 (黑 / 赛博冷青)",
+    colorScheme: "dark",
+    accent: "#00BBC5",
+    secondary: "#56E0D8",
+    surface: "#0F1415",
+    text: "#EAF2F3",
+    glow: "radial-gradient(1180px 720px at 76% -14%, rgba(0, 166, 175, 0.32), transparent 64%), radial-gradient(900px 620px at 6% 108%, rgba(86, 132, 179, 0.2), transparent 60%), radial-gradient(1500px 950px at 50% 32%, rgba(32, 38, 39, 0.55), transparent 74%), linear-gradient(163deg, #13191a 0%, #0c1111 55%, #101616 100%)",
+  },
+  {
+    id: "dsh-nebula",
+    name: "DSH · 星云 (黑 / 尘埃幽紫)",
+    colorScheme: "dark",
+    accent: "#B784FF",
+    secondary: "#F097C8",
+    surface: "#14101A",
+    text: "#F3EEFB",
+    glow: "radial-gradient(1180px 720px at 76% -14%, rgba(183, 132, 255, 0.30), transparent 64%), radial-gradient(900px 620px at 6% 108%, rgba(120, 80, 200, 0.2), transparent 60%), radial-gradient(1500px 950px at 50% 32%, rgba(36, 28, 48, 0.55), transparent 74%), linear-gradient(163deg, #181220 0%, #0f0a15 55%, #150f1d 100%)",
+  },
+  {
+    id: "dsh-ember",
+    name: "DSH · 余烬 (黑 / 焦糖暖琥珀)",
+    colorScheme: "dark",
+    accent: "#F2801E",
+    secondary: "#FFD166",
+    surface: "#17120F",
+    text: "#FFE8D6",
+    glow: "radial-gradient(1180px 720px at 76% -14%, rgba(242, 128, 30, 0.30), transparent 64%), radial-gradient(900px 620px at 6% 108%, rgba(200, 90, 40, 0.2), transparent 60%), radial-gradient(1500px 950px at 50% 32%, rgba(45, 30, 24, 0.55), transparent 74%), linear-gradient(163deg, #1c1511 0%, #110d0b 55%, #19120e 100%)",
+  },
+  {
+    id: "dsh-midnight",
+    name: "DSH · 子夜 (黑 / OLED 纯黑)",
+    colorScheme: "dark",
+    accent: "#889EF6",
+    secondary: "#A3B7FF",
+    surface: "#0B0B0C",
+    text: "#EFF0F1",
+    glow: "radial-gradient(1180px 720px at 76% -14%, rgba(136, 158, 246, 0.22), transparent 64%), radial-gradient(900px 620px at 6% 108%, rgba(60, 80, 140, 0.15), transparent 60%), radial-gradient(1500px 950px at 50% 32%, rgba(20, 20, 24, 0.6), transparent 74%), linear-gradient(163deg, #0f0f10 0%, #070708 55%, #0b0b0c 100%)",
+  },
+];
