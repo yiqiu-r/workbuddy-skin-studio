@@ -21,7 +21,11 @@ export function buildSkinCss({ theme, heroDataUrl, mode }) {
 
   const accent = theme.colors?.accent ?? theme.accent ?? DEFAULT_COLORS.accent;
   const secondary = theme.colors?.secondary ?? theme.secondary ?? DEFAULT_COLORS.secondary;
-  const textColor = isLightMode ? (theme.colors?.text ?? "#1E293B") : (theme.colors?.text ?? "#F8FAFC");
+  const rawText = theme.colors?.text ?? theme.text;
+  const textConflict = rawText && (isLightMode ? isLight(rawText) : !isLight(rawText));
+  const textColor = (!rawText || textConflict)
+    ? (isLightMode ? "#1E293B" : "#F8FAFC")
+    : rawText;
   const id = String(theme.id ?? "custom").replace(/[^a-z0-9_-]/gi, "");
 
   // 背景源：优先使用传入的 heroDataUrl (壁纸)，次选主题自带的弥散光 glow
