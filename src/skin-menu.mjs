@@ -38,6 +38,7 @@ export function buildSkinMenuScript({ entries, activeId, styleId, menuId, cssTem
     storageKey: "workbuddyCustomTheme",
     modeKey: "workbuddyThemeMode",
     opacityKey: "workbuddyWallpaperOpacity",
+    posKey: "workbuddyMenuPos",
   });
 
   return `(() => {
@@ -50,21 +51,77 @@ export function buildSkinMenuScript({ entries, activeId, styleId, menuId, cssTem
     document.head.appendChild(style);
   }
 
+  // 清理上一次注入的界面与监听，避免重复注入后叠加
+  try { window.__wbSkinMenuCleanup?.(); } catch {}
   document.getElementById(data.menuId)?.remove();
+  document.getElementById(data.menuId + "-panel")?.remove();
+
+  const BTN = 38;
+  const GAP = 8;
+  const EDGE = 8;
+
   const root = document.createElement("div");
   root.id = data.menuId;
-  root.style.cssText = "position:fixed;top:48px;right:16px;z-index:2147483000;font:500 13px/1.4 system-ui;user-select:none;";
+  root.style.cssText = "position:fixed;left:0;top:0;width:38px;height:38px;z-index:2147483001;font:500 13px/1.4 system-ui;user-select:none;";
 
   const button = document.createElement("button");
   button.type = "button";
   button.textContent = "\\u{1F3A8}";
-  button.title = "WorkBuddy Dream Skin 调色板";
-  button.style.cssText = "display:block;margin-left:auto;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.85);backdrop-filter:blur(16px);box-shadow:0 4px 16px rgba(0,0,0,.15);cursor:pointer;font-size:19px;padding:0;transition:transform .15s ease;";
+  button.title = "WorkBuddy Dream Skin 调色板（可拖动，方向键微调位置）";
+  button.style.cssText = "display:block;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.85);backdrop-filter:blur(16px);box-shadow:0 4px 16px rgba(0,0,0,.15);cursor:grab;touch-action:none;font-size:19px;padding:0;transition:transform .15s ease;";
   button.onmouseenter = () => button.style.transform = "scale(1.08)";
   button.onmouseleave = () => button.style.transform = "scale(1)";
 
+  // 面板独立挂在 body 上，用 fixed 定位跟随按钮，避免嵌套在 38px 盒子里的裁剪与测量误差
   const panel = document.createElement("div");
-  panel.style.cssText = "display:none;margin-top:8px;width:240px;max-height:85vh;overflow-y:auto;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.88);backdrop-filter:blur(24px) saturate(140%);box-shadow:0 12px 36px rgba(0,0,0,.2);color:#1e293b;";
+  panel.id = data.menuId + "-panel";
+  panel.style.cssText = "display:none;position:fixed;left:0;top:0;width:240px;max-height:85vh;overflow-y:auto;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.88);backdrop-filter:blur(24px) saturate(140%);box-shadow:0 12px 36px rgba(0,0,0,.2);color:#1e293b;z-index:2147482999;";
+
+  // --- 悬浮按钮位置：可拖拽、记忆、贴边让位 ---
+  const clampNum = (value, low, high) => Math.min(Math.max(value, low), Math.max(low, high));
+  const maxX = () => window.innerWidth - BTN - EDGE;
+  const maxY = () => window.innerHeight - BTN - EDGE;
+  const applyPos = (x, y) => {
+    const nx = Math.round(clampNum(x, EDGE, maxX()));
+    const ny = Math.round(clampNum(y, EDGE, maxY()));
+    root.style.left = nx + "px";
+    root.style.top = ny + "px";
+    return { x: nx, y: ny };
+  };
+
+  let savedPos = null;
+  try {
+    const rawPos = localStorage.getItem(data.posKey);
+    if (rawPos) {
+      const parsedPos = JSON.parse(rawPos);
+      if (Number.isFinite(parsedPos?.x) && Number.isFinite(parsedPos?.y)) savedPos = parsedPos;
+    }
+  } catch {}
+  let pos = applyPos(savedPos ? savedPos.x : maxX() - 8, savedPos ? savedPos.y : 48);
+
+  const savePos = () => {
+    try { localStorage.setItem(data.posKey, JSON.stringify(pos)); } catch {}
+  };
+
+  // 面板优先对齐按钮右缘、向下展开；空间不足时自动翻转
+  const placePanel = () => {
+    if (panel.style.display === "none") return;
+    const rect = root.getBoundingClientRect();
+    const pw = panel.offsetWidth || 240;
+    const ph = panel.offsetHeight || 0;
+    let left = rect.right - pw;
+    if (left < EDGE) left = rect.left;
+    left = clampNum(left, EDGE, window.innerWidth - EDGE - pw);
+    let top = rect.bottom + GAP;
+    if (top + ph > window.innerHeight - EDGE) {
+      const above = rect.top - GAP - ph;
+      top = above >= EDGE ? above : Math.max(EDGE, window.innerHeight - EDGE - ph);
+    }
+    panel.style.left = Math.round(left) + "px";
+    panel.style.top = Math.round(top) + "px";
+  };
+
+  const closePanel = () => { panel.style.display = "none"; };
 
   // --- 模式切换栏 (☀️ 白天浅色 / 🌙 黑夜深色) ---
   const modeHeader = document.createElement("div");
@@ -362,17 +419,101 @@ export function buildSkinMenuScript({ entries, activeId, styleId, menuId, cssTem
 
   row("恢复官方原生界面", "#888888", () => { clearTheme(); panel.style.display = "none"; });
 
-  // 展开 / 收起面板
-  button.onclick = (e) => {
-    e.stopPropagation();
-    panel.style.display = panel.style.display === "none" ? "block" : "none";
-  };
-  document.addEventListener("click", (e) => {
-    if (!root.contains(e.target)) panel.style.display = "none";
+  // --- 拖拽移动：位移超过 4px 判为拖动，否则算点击 ---
+  let drag = null;
+  let suppressClick = false;
+
+  button.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    const rect = root.getBoundingClientRect();
+    drag = {
+      id: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      offsetX: event.clientX - rect.left,
+      offsetY: event.clientY - rect.top,
+      moved: false,
+    };
+    try { button.setPointerCapture(event.pointerId); } catch {}
   });
 
-  root.append(button, panel);
-  document.body.appendChild(root);
+  const onPointerMove = (event) => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+    if (!drag.moved) {
+      if (Math.hypot(dx, dy) < 4) return;
+      drag.moved = true;
+      closePanel();
+      button.style.transform = "none";
+      button.style.cursor = "grabbing";
+    }
+    pos = applyPos(event.clientX - drag.offsetX, event.clientY - drag.offsetY);
+    event.preventDefault();
+  };
+
+  const onPointerUp = (event) => {
+    if (!drag || event.pointerId !== drag.id) return;
+    const moved = drag.moved;
+    drag = null;
+    button.style.cursor = "grab";
+    try { button.releasePointerCapture(event.pointerId); } catch {}
+    if (moved) {
+      // 只吞掉拖动收尾那一下 click：紧随 pointerup 同步派发，下一轮宏任务即解除
+      suppressClick = true;
+      setTimeout(() => { suppressClick = false; }, 0);
+      savePos();
+      placePanel();
+    }
+  };
+
+  // 键盘微调：方向键 8px，Shift + 方向键 24px
+  button.addEventListener("keydown", (event) => {
+    const step = event.shiftKey ? 24 : 8;
+    let dx = 0;
+    let dy = 0;
+    if (event.key === "ArrowLeft") dx = -step;
+    else if (event.key === "ArrowRight") dx = step;
+    else if (event.key === "ArrowUp") dy = -step;
+    else if (event.key === "ArrowDown") dy = step;
+    else return;
+    event.preventDefault();
+    pos = applyPos(pos.x + dx, pos.y + dy);
+    savePos();
+    placePanel();
+  });
+
+  // 展开 / 收起面板
+  button.onclick = (event) => {
+    event.stopPropagation();
+    if (suppressClick) { suppressClick = false; return; }
+    if (panel.style.display === "none") {
+      panel.style.display = "block";
+      placePanel();
+    } else {
+      closePanel();
+    }
+  };
+
+  const controller = new AbortController();
+  const { signal } = controller;
+  window.addEventListener("pointermove", onPointerMove, { signal });
+  window.addEventListener("pointerup", onPointerUp, { signal });
+  window.addEventListener("pointercancel", onPointerUp, { signal });
+  window.addEventListener("resize", () => { pos = applyPos(pos.x, pos.y); placePanel(); }, { signal });
+  document.addEventListener("click", (event) => {
+    if (!root.contains(event.target) && !panel.contains(event.target)) closePanel();
+  }, { signal });
+
+  const cleanup = () => {
+    try { controller.abort(); } catch {}
+    root.remove();
+    panel.remove();
+  };
+  window.__wbSkinMenuCleanup = cleanup;
+
+  root.append(button);
+  document.body.append(root, panel);
 
   // 初始化已有自定义壁纸
   const existingCustom = loadCustom();
