@@ -38,7 +38,6 @@ export function buildSkinMenuScript({ entries, activeId, styleId, menuId, cssTem
     storageKey: "workbuddyCustomTheme",
     modeKey: "workbuddyThemeMode",
     opacityKey: "workbuddyWallpaperOpacity",
-    posKey: "workbuddyMenuPos",
   });
 
   return `(() => {
@@ -54,52 +53,18 @@ export function buildSkinMenuScript({ entries, activeId, styleId, menuId, cssTem
   document.getElementById(data.menuId)?.remove();
   const root = document.createElement("div");
   root.id = data.menuId;
-  root.style.cssText = "position:fixed;z-index:2147483000;width:38px;height:38px;font:500 13px/1.4 system-ui;user-select:none;";
-
-  // --- 悬浮按钮位置：可拖拽，位置持久化 ---
-  const BTN = 38;
-  const clampNum = (value, min, max) => Math.min(Math.max(value, min), max);
-  const setPos = (x, y) => {
-    const maxX = Math.max(4, window.innerWidth - BTN - 4);
-    const maxY = Math.max(4, window.innerHeight - BTN - 4);
-    root.style.left = clampNum(x, 4, maxX) + "px";
-    root.style.top = clampNum(y, 4, maxY) + "px";
-  };
-
-  let savedPos = null;
-  try {
-    const rawPos = localStorage.getItem(data.posKey);
-    if (rawPos) {
-      const parsedPos = JSON.parse(rawPos);
-      if (Number.isFinite(parsedPos?.x) && Number.isFinite(parsedPos?.y)) savedPos = parsedPos;
-    }
-  } catch {}
-  setPos(savedPos ? savedPos.x : window.innerWidth - BTN - 16, savedPos ? savedPos.y : 48);
+  root.style.cssText = "position:fixed;top:48px;right:16px;z-index:2147483000;font:500 13px/1.4 system-ui;user-select:none;";
 
   const button = document.createElement("button");
   button.type = "button";
   button.textContent = "\\u{1F3A8}";
-  button.title = "WorkBuddy Dream Skin 调色板（拖动可移动位置）";
-  button.style.cssText = "display:block;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.85);backdrop-filter:blur(16px);box-shadow:0 4px 16px rgba(0,0,0,.15);cursor:grab;touch-action:none;font-size:19px;padding:0;transition:transform .15s ease;";
+  button.title = "WorkBuddy Dream Skin 调色板";
+  button.style.cssText = "display:block;margin-left:auto;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.85);backdrop-filter:blur(16px);box-shadow:0 4px 16px rgba(0,0,0,.15);cursor:pointer;font-size:19px;padding:0;transition:transform .15s ease;";
   button.onmouseenter = () => button.style.transform = "scale(1.08)";
   button.onmouseleave = () => button.style.transform = "scale(1)";
 
   const panel = document.createElement("div");
-  panel.style.cssText = "display:none;position:absolute;top:46px;right:0;width:240px;max-height:85vh;overflow-y:auto;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.88);backdrop-filter:blur(24px) saturate(140%);box-shadow:0 12px 36px rgba(0,0,0,.2);color:#1e293b;";
-
-  // 依据按钮所在位置决定面板朝哪一侧展开，避免贴边被裁掉
-  const alignPanel = () => {
-    if (panel.style.display === "none") return;
-    const rect = root.getBoundingClientRect();
-    const width = panel.offsetWidth || 240;
-    const height = panel.offsetHeight || 0;
-    const flipX = rect.left - (width - BTN) < 8;
-    panel.style.left = flipX ? "0" : "auto";
-    panel.style.right = flipX ? "auto" : "0";
-    const flipY = rect.top + 46 + height > window.innerHeight - 8;
-    panel.style.top = flipY ? "auto" : "46px";
-    panel.style.bottom = flipY ? "46px" : "auto";
-  };
+  panel.style.cssText = "display:none;margin-top:8px;width:240px;max-height:85vh;overflow-y:auto;padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.88);backdrop-filter:blur(24px) saturate(140%);box-shadow:0 12px 36px rgba(0,0,0,.2);color:#1e293b;";
 
   // --- 模式切换栏 (☀️ 白天浅色 / 🌙 黑夜深色) ---
   const modeHeader = document.createElement("div");
@@ -196,12 +161,13 @@ export function buildSkinMenuScript({ entries, activeId, styleId, menuId, cssTem
   // --- 自定义壁纸生成与模式适配 ---
   const buildCustomCss = (dataUrl, colors, mode) => {
     const tpl = mode === "dark" ? data.cssTemplateDark : data.cssTemplateLight;
+    const modeText = mode === "dark" ? "#F8FAFC" : "#1E293B";
     return tpl
       .split(data.sentinels.hero).join(dataUrl)
       .split(data.sentinels.accent).join(colors.accent)
       .split(data.sentinels.secondary).join(colors.secondary)
       .split(data.sentinels.surface).join(colors.surface)
-      .split(data.sentinels.text).join(colors.text)
+      .split(data.sentinels.text).join(modeText)
       .split(data.sentinels.id).join(data.customId);
   };
 
@@ -396,70 +362,10 @@ export function buildSkinMenuScript({ entries, activeId, styleId, menuId, cssTem
 
   row("恢复官方原生界面", "#888888", () => { clearTheme(); panel.style.display = "none"; });
 
-  // --- 拖拽移动（位移超过 4px 视为拖动，否则视为点击展开） ---
-  let drag = null;
-  let suppressClick = false;
-
-  button.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0) return;
-    const rect = root.getBoundingClientRect();
-    drag = {
-      id: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      offsetX: event.clientX - rect.left,
-      offsetY: event.clientY - rect.top,
-      moved: false,
-    };
-    try { button.setPointerCapture(event.pointerId); } catch {}
-    button.style.cursor = "grabbing";
-  });
-
-  button.addEventListener("pointermove", (event) => {
-    if (!drag || event.pointerId !== drag.id) return;
-    const dx = event.clientX - drag.startX;
-    const dy = event.clientY - drag.startY;
-    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
-    if (!drag.moved) {
-      drag.moved = true;
-      panel.style.display = "none";
-      button.style.transform = "none";
-    }
-    setPos(event.clientX - drag.offsetX, event.clientY - drag.offsetY);
-    event.preventDefault();
-  });
-
-  const endDrag = (event) => {
-    if (!drag || event.pointerId !== drag.id) return;
-    const moved = drag.moved;
-    drag = null;
-    button.style.cursor = "grab";
-    try { button.releasePointerCapture(event.pointerId); } catch {}
-    if (moved) {
-      suppressClick = true;
-      const rect = root.getBoundingClientRect();
-      try {
-        localStorage.setItem(data.posKey, JSON.stringify({ x: Math.round(rect.left), y: Math.round(rect.top) }));
-      } catch {}
-      alignPanel();
-    }
-  };
-  button.addEventListener("pointerup", endDrag);
-  button.addEventListener("pointercancel", endDrag);
-
-  window.addEventListener("resize", () => {
-    const rect = root.getBoundingClientRect();
-    setPos(rect.left, rect.top);
-    alignPanel();
-  });
-
   // 展开 / 收起面板
   button.onclick = (e) => {
     e.stopPropagation();
-    if (suppressClick) { suppressClick = false; return; }
-    const willOpen = panel.style.display === "none";
-    panel.style.display = willOpen ? "block" : "none";
-    if (willOpen) alignPanel();
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
   };
   document.addEventListener("click", (e) => {
     if (!root.contains(e.target)) panel.style.display = "none";
